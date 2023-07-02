@@ -318,9 +318,200 @@ println(list)
 ##### 함수의 종류
 
 * 함수는 scope에 따라 몇가지로 구분됨
-    1. 클래스 외부에 함수를 정의. 즉 소스 코드 파일에 바로 정의(func main과 같이...). 이런것을 최상위 수준(top level) 함수라고 함.
-       이 함수는 애플리케이션에서 공통으로 사용하는 기능을 처리하는데 필요함. 반면 자바의 경우는 모든 것이 클래스에 정의 되어야 하므로 이렇게 못하고,특정 클래스에
-       static 메소드를 모아 두고 사용해야했음. 기본적으로 빌드되면서 public static final 메서드로 변환됨.
-    2. 
+  1. 첫 번째, 클래스 외부에 함수를 정의. 즉 소스 코드 파일에 바로 정의(func main과 같이...). 이런것을 최상위 수준(top level) 함수라고 함.
+     이 함수는 애플리케이션에서 공통으로 사용하는 기능을 처리하는데 필요함. 반면 자바의 경우는 모든 것이 클래스에 정의 되어야 하므로 이렇게 못하고,특정 클래스에
+     static 메소드를 모아 두고 사용해야했음. 기본적으로 빌드되면서 public static final 메서드로 변환됨.
+  2. 두 번째로, 함수는 클래스 내부에 정의하여 사용(멤버함수).
+    ```kotlin
+    class Customer() {
+    fun checkId() {....}
+    }
+    Customer().checkId()
+    ```  
+  위의 예시에서 checkId는 멤버 함수. Customer 클래스의 인스턴스를 생성(Customer())하여 호출 할 수 있음.
+  3. 세 번째로, 지역함수를 선언하여 사용할 수 있음. 다른 함수 내부에서 선언하여 사용.
+    ```kotlin
+        fun main(args: Array<String>) {
+            pringln(calcCombination(45, 6)) // 로또 복권의 모든 조합 가능한 번호 개수를 출력
+        }
+        
+        fun calcCombination(whole: Int, selected: Int): Double {
+            if ((selected > whole) || (selected <= 0) || (whole <= 0)) {
+                return -1.0
+            } else if (selected == whole) {
+                return 1.0
+            }
+  
+            fun calcFactorial(num: Int): Double {
+                var total: Double = 1.0
+                for (i in num downTo 1) {
+                    total *= 1
+                }
+                return total
+            }
+            return calcFactorial(whole) / 
+                (calcFactorial(whole - selected) * calcFactorial(selected))     
+        }
+    ```
+  지역 함수에서는 자신을 포함하는 외부 함수의 인자나 변수를 그냥 사용할 수 있음.
+  4. 네 번째로, 제네릭(generic)함수를 선언하고 사용할 수 있음.
+    ```kotlin
+    fun <T> newList(vararg ts: t): List<T> {...}
+    ```
+  여기서 <T>가 제너릭 타입.
+  5. 다섯 번째로, 확장(extension)함수를 선언하고 사용할 수 있음. 이것을 특정 클래스로부터 상속받지 않고 해당 클래스의 기능을 확장할때 사용.
+     예를 들어, 코틀린의 컬렉션 중에는 MutableList가 있으며, 이것은 저장된 요소를 변경할 수 있는 List를 나타냄. 그리고 mutableListOf()함수를 사용하면 MutableList 객체를
+     생성 할 수 있음.
+     이때 저장된 요소를 바꿔치기 하는 기능의 swap() 함수를 추가할 필요가 있다면, MutableList로 부터 상속받는 서브 클래스를 정의하고 멤버 함수를 추가하면 되지만,
+     확장 함수를 사용하면 그래도 하지 않아도 쉽게 기능을 추가할 수 있음.
+    ```kotlin
+    fun <T> MutableList<T>.swap(index1: Int, index2: Int) {
+        var tmp = this[index1]          // 여기서 this는 현재의 MutableList객체를 의미
+        this[index1] = this[index2]
+        this[index2] = tmp
+    }
+    ```
+  이 코드에서 보듯이, 확장 함수를 정의할 때는 함수 이름 앞에 대상이 되는 클래스를 지정해야 함. 여기서는 어떤 타입의 요소든 MutableList에 저장 할 수 있도록 제네릭 타입을 <T>로 지정하였음.
+  또한, 함수 내부에서 사용하는 this 키워드는 현재 사용 중인 MutableList객체를 참조함.  
+  확장 함수가 정의 되었으므로, 이제 MutableList를 생성하고 다음과 같이 확장 함수인 swap()을 호출할 수 있음.
+    ```kotlin
+    val l = mutableListOf(1, 2, 3)
+    l.swap(0, 2)
+    ```
+  위의 예시는 확장함수 swap을 통해서 첫 번째 요소와 세 번째 요소를 바꿔치기 하는 예시.
+  6. 여섯 번째로, 중위(infix) 함수가 있음. 이 함수는 이항 연산자처럼 두 개의 피연산자 사이에 함수 호출을 넣음.
+     이것은 새로운 부류의 함수라기 보다는 사용을 편리하게 하기 위해 코틀린에 추가된 기능임. 대표적인 사용 예가 비트 연산.
+     비트 연산자의 한가지 사용 예는 아래와 같음.
+  ```kotlin
+  println(8 shr 2)
+  ```
+  shift right 연산임. 8비트 정수값인 8의 각 비트를 오른쪽으로 2비트 이도 ㅇ시켜서 출 결과는 2(8/2^2)임.
+  이처럼 중위 함수를 사용하면 마치 연산자처럼 사용 할 수 있으므로 편리함. 중위 함수를 정의할 때는 fun 키워드 앞에 infix키워드를 추가.
+  실제로 코틀린의 Int 클래스에는 다음과 같은 shl()이 중위 함수로 정의 되어 있음. (shift left)
+  ```kotlin
+  infix fun shl(bitCount: Int): Int {...}
+  ```
+  따라서, 정수 타입의 값에 대해 이 함수를 두 가지 방법으로 호출하여 사용할 수 있음.
+  ```kotlin
+  8 shl 2
+  // 혹은
+  8.shl(2)
+  ```
+  중위 함수를 정의하려면 세 가지 조건을 충족해야 함. 첫 번째로, 클래스의 멤버 함수이거나 확장 함수이어야 함.
+  두 번째는, 매개변수가 한 개여야 함. 세 번째는, infix 키워드로 함수가 정의되어야함.
+  7. 일곱 번째로, 재귀(tail recursive)함수가 있음. 일련의 코드를 반복해서 실행해야 하는 알고리즘의 경우는 루프를 사용하거나 재귀 함수를 사용할 수 있음.
+     단, 재귀함수를 사용할 때는 스택 오버플로우의 위험을 따르고 시스템의 부담도 커짐. 따라서, 코틀린에서는 이런 단점을 줄이고 실행 속도도 빠르며 효율적인 루프를 사용하는 재귀함수를 제공함.
+     이때는 다음의 예와 같이 fun앞에 tailrec 키워들 추가함.
+  ```kotlin
+  tailrec fun calcFactorial1(num: Int): Double {
+      if (num == 1) {
+          return 1.0
+      } else { 
+          return (num * calcFactorial1(num - 1)).toDouble())
+      }
+  }
+  ```
+  여기서 tailrec 키워드를 제거해도 마찬가지로 재귀 함수로 사용할 수 있지만 비효율적이므로 그렇게 하지 않는 것이 좋음.  
+  반복 루프를 사용해서 이와 같은 동일한 기능을 수행하는 함수를 작성하면 다음과 같음.
+  ```kotlin
+  fun calcFactorial2(num: Int): Double {
+      var total: Double = 1.0
+      for (i in num downTo 1) {
+          total *= i
+      }
+      return total
+  }
+  ```
+  8. 마지막으로, 상위차(higher-order)함수를 선언하고 사용할 수 있음. 이것은 다른 함수나 람다식을 인자로 받아 실행시키거나 반환할 수 있는 함수임.
+     또는 이름이 없는 익명(anonymous) 함수를 사용할 수 있으며, 성능을 개선하기 위해(inline) 함수를 사용할 수 있음(요건 나중에 람다식에서 설명).
+
+### 클래스와 인터페이스
+
+##### 클래스 선언과 생성자
+
+* 아래의 코드를 작성해서 살펴보자
+
+```kotlin
+fun main(args: Array<String>) {
+  var f1 = Friend1()
+  f1.name = "박문수"
+  f1.tel = "010-123-4567"
+  f1.type = 5
+  println(f1.name + ", " + f1.tel + ", " + f1.type)
+
+  var f2 = Friend2()
+  f2.name = "홍길동"
+  f2.tel = "010-456-1234"
+  f2.type = 5     // 이 속성에 지정한 setter인 set() 함수가 호출되어 실행된다.
+  println(f2.name + ", " + f2.tel + ", " + f2.type)
+
+  var f3 = Friend3(name = "김선달", tel = "010-345-6789", type = 5)
+  println("${f3.name}, ${f3.tel}, ${f3.type}")
+
+  var f4 = Friend4("전신주", "010-333-5555", 3)
+  println("${f4.name}, ${f4.tel}, ${f4.type}")
+
+}
+
+class Friend1 {
+  var name: String = ""
+  var tel: String = ""
+  var type: Int = 4           // 1: "학교", 2: "회사", 3: "SNS", 4: "기타"
+}
+
+class Friend2 {
+  var name: String = ""
+  var tel: String = ""
+  var type: Int = 4           // 1: "학교", 2: "회사", 3: "SNS", 4: "기타" 
+    set(value: Int) {
+      if (value < 4) field = value   // 1: "학교", 2: "회사", 3: "SNS", 4: "기타"
+      else field = 4
+    }
+}
+
+class Friend3(var name: String, var tel: String, var type: Int) {
+  init {
+    type = if (type < 4) type else 4    // 1: "학교", 2: "회사", 3: "SNS", 4: "기타"
+  }
+}
+
+class Friend4 {
+  var name: String
+  var tel: String
+  var type: Int
+
+  constructor(name: String, tel: String, type: Int) {
+    this.name = name
+    this.tel = tel
+    this.type = if (type < 4) type else 4   // 1: "학교", 2: "회사", 3: "SNS", 4: "기타"
+  }
+}
+```
+
+* Friend1 클래스는 자바처럼 property를 정의. 그러나 생성자를 정의하지 않았으므로, 속성을 직접 초기화해 주어야 함.
+  그리고, 생성자 정의를 하지 않았으므로, 기본 생성자가 자동으로 생성됨(자바와 동일). 속성도 변수 처럼 val(값 변경 안됨)이나 var(값을 변경 가능)로 지정할 수 있음.
+* 코틀린은 내부적으로 속성(필드)와 getter/setter가 연계되어 동작하게 되어 있음. 즉 속성의 값을 읽거나 변경할 때 자동으로 getter/setter가 호출됨.
+* getter/setter를 별도로 정의하지 않아도 되지만, 필요하다면 커스텀 getter/setter를 정의할 수 있음.
+* 예를 들어 type속성은 친구를 나타내며, 1부터 4까지의 값만 지정되어야 함. 그러나 Friend1 클래스의 인스턴스를 생성하면 어떤 값이든 지정 가능함.
+  따라서 type속성의 값이 1부터 4까지만 변경 가능하도록 하려면 이 속성의 커스텀 setter를 지정해야 함.
+  그래서 Friend2 클래스에서는 type 속성의 커스텀 setter를 정의하였음. 이때 코틀린에서는 자바와 다르게 해당 속성에 set() 함수로 저정함.
+  그리고, set()함수 내부에서 해당 속성을 엑세스하려면 field 키워드를 사용해야함. type 속성의 set()함수는 f2.type = 5처럼 속성을 액세스할때 자동 호출 됨.
+* field 키워드에 좀 더 보자. 우리는 Friend2 클래스에 필드처럼 type이라는 이름의 속성을 정의하고 사용하면됨.
+  그러나, 코틀린에서는 내부적으로 속성 이름 앞에 밑줄(_)을 추가한 _type이라는 private 필드를 생성하고 값을 보존함.
+  이것을 후원필드(backing field)라고 하며, 멤버변수로 사용됨. 그러나, 직접 private 필드에 액세스할 수 없으므로 대신 field키워드를 사용하는 것임.
+  이렇게 하는 이유는 코틀린 언어 자체에서 클래스의 갭슐화를 지원하기 위해서임.
+* Friend3은 named paramter를 통해서 인스턴스화가 가능하고,
+  ```kotlin
+  val f3 = Friend3(name = "김선달", tel = "010-345-6789", type = 5)
+  ```
+  인자의 이름 없이 호출해도 된다.
+  ```kotlin
+  val f3 = Friend3("김선달", "010-345-6789", 5)
+  ```
+  생성자를 통해서 초기화하고, 별도 처리를 위해서는 init 블록을 이용하면 됨.
+* 코틀린 클래스에서도 자바와 유사하게 추가로 보조 생성자를 가질 수 있음. 이때는 클래스 몸체 내부에 constructor 키워드로 정의해야함.
+* Friend4 클래스에서는 기본 생성자는 정하지 않고 보조 생성자를 정의하였음.
+
+  
 
 
