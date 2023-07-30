@@ -16,7 +16,6 @@ fun main(args: Array<String>) {
 
     var f4 = Friend4("전신주", "010-333-5555", 3)
     println("${f4.name}, ${f4.tel}, ${f4.type}")
-
 }
 
 class Friend1 {
@@ -51,4 +50,11 @@ class Friend4 {
         this.tel = tel
         this.type = if (type < 4) type else 4   // 1: "학교", 2: "회사", 3: "SNS", 4: "기타"
     }
+
+    fun test(value: String): String {
+        return value
+    }
 }
+
+
+

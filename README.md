@@ -1,9 +1,8 @@
 # kotlin-test
 
+## T4OperandOverloading.kt
 ### 연산자와 연산자 오버로딩 (변환 코드)
-
 #### 연산자 별 변환되는 코드
-
 ##### 산술 연산자
 
 > a + b : a.plus(b)   
@@ -90,8 +89,8 @@
 
 * java의 instanceof
 
+## T5NullMechanism.kt
 ### null 처리 mechanism
-
 ##### ?.
 
 > eg: a?.length   
@@ -115,8 +114,8 @@
    > val s1: String? = s2 as? String?
 >* 위와 같이 하면, s2의 값이 String 타입에 부적합할 때 예외를 발생하키지 않고 null 값을 반환
 
+## T6FlowControl.kt
 ### 코드 실행 제어
-
 ##### if, when
 
  ```kotlin
@@ -241,8 +240,8 @@ for (i in 10 downTo 1) {
 
 * while과 do-while loop는 다른 언어와 동일하다.
 
+## T7Function.kt
 ### 함수
-
 ##### 함수 선언과 호출
 
 * 함수 선언시 fun 키워드를 함수명 앞에 지정함.
@@ -261,7 +260,7 @@ for (i in 10 downTo 1) {
 * 아래와 같이 더 축약된 형태로 할 수도 있음.
 
 ```kotlin
-  fun main(valueLeft: Int, valueRIght: Int) = if (valueLeft > valueLeft) valueLeft else valueRight
+  fun min(valueLeft: Int, valueRIght: Int) = if (valueLeft > valueLeft) valueLeft else valueRight
 ```
 
 * min 함수의 return type을 지정하지 않았으나, 표현식(if)이 assign되고 리턴타입이 Int이므로 min함수의 리턴타입을 Int로 타입 추론.
@@ -425,8 +424,8 @@ println(list)
   8. 마지막으로, 상위차(higher-order)함수를 선언하고 사용할 수 있음. 이것은 다른 함수나 람다식을 인자로 받아 실행시키거나 반환할 수 있는 함수임.
      또는 이름이 없는 익명(anonymous) 함수를 사용할 수 있으며, 성능을 개선하기 위해(inline) 함수를 사용할 수 있음(요건 나중에 람다식에서 설명).
 
+## T8ClassAndInterface.kt
 ### 클래스와 인터페이스
-
 ##### 클래스 선언과 생성자
 
 * 아래의 코드를 작성해서 살펴보자
@@ -512,6 +511,103 @@ class Friend4 {
 * 코틀린 클래스에서도 자바와 유사하게 추가로 보조 생성자를 가질 수 있음. 이때는 클래스 몸체 내부에 constructor 키워드로 정의해야함.
 * Friend4 클래스에서는 기본 생성자는 정하지 않고 보조 생성자를 정의하였음.
 
-  
+... continue
 
+## X00FlowTest.kt
+
+## X01MobileTicketStatus.kt
+
+### 2개의 리스트를 비교하는 function getCompareForTkt
+
+## X02ConvertToDomainClassFromDTO.kt
+
+#### UserDTO에 extension function (mapDomain)을 추가하여, domain class인 User로 변경
+
+```kotlin
+    // 확장함수 추가
+fun UserDTO.mapDomain() = User(
+    id = this.id ?: -1,
+    name = this.name.orEmpty(),
+    age = (
+            if (this.isDomestic == true) {
+                this.age + 1
+            } else {
+                this.age
+            }),
+    validPeriod = User.ValidPeriod(this.birthDate, this.birthDate.plusYears(1))
+)
+
+// 실제 사용(변환)
+val user: User = UserDTO.mapDomain() 
+```
+
+## X03ScopingFunction.kt
+
+### let
+
+#### 함수 선언
+
+```kotlin
+    fun <T, R> T.let(block: (T) -> R): R
+```
+
+* let 함수는 매개변수화된 타입 T의 확장 함수임.
+* 자기자신을 받아서 R을 반환하는 ((T) -> R) 람다식을 입력으로 받고, 블럭함수의 반환값 R을 반환함.
+
+### with
+
+#### 함수 선언
+
+```kotlin
+    fun <T, R> with(receiver: T, block: T.() -> R): R
+```
+
+* with는 일반 함수이기 때문에 객체 receive를 직접 입력받고, 객체를 사용하기 위한 두 번째 파라메터 블럭을 받음.   
+  T.()를 람다 리시버라고 하는데, 입력을 받으면 함수 내에서 this를 사용하지 않고도 입력받은 객체(receiver)의 속성을 변경할 수 있음.
+
+### run
+
+* run은 두가지 형태로 선언되어 있음.
+
+#### 함수 선언 #1
+
+```kotlin
+    fun <T, R> T.run(block: T.() -> R): R
+```
+
+* run은 with처럼 인자로 람다 리시버를 받고, 반환 형태도 비슷하게 생겼지만 T의 확장함수라는 점에서 차이가 있음.   
+  확장함수이기 때문에 safe call(.?)을 붙혀 non-null일 때에만 실행할 수 있음. 어떤 값을 계산할 필요가 있거나 여러 개의 지역변수 범위를 제한할 때 사용함.
+
+#### 함수 선언 #2
+
+```kotlin
+    fun <R> run(block: () -> R): R
+```
+
+* 이 run은 확장 함수가 아니고, 블럭에 입력값도 없음. 따라서 객체를 전달받아서 속성을 변경하는 형식에 사용되는 함수가 아님.
+  이 함수는 어떤 객체를 생성하기 위한 명령문을 블럭 안에 묶음으로써 가독성을 높이는 역할을 함.
+
+### apply
+
+#### 함수 선언
+
+```kotlin
+    fun <T> T.apply(block: T.() -> Unit): T
+```
+
+* apply는 T의 확장 함수이고, 블럭 함수의 입력을 람다 리시버로 받았기 때문에 블럭 안에서 객체의 프로퍼티를 호출할 때 it이나, this를 사용할 필요가 없음.
+  run과 유사하지만 블럭에서 return값을 받지 않으며 자기 자신인 T를 반환한다는 점이 다름.
+* 앞에서 살펴 본 let, with, run은 모두 맨 마지막 반환되는 값은 R임. 하지만 apply와 추후 살펴볼 also는 T를 반환함.
+
+### also
+
+#### 함수 선언
+
+```kotlin
+    fun <T> T.also(block: (T) -> Unit): T
+```
+
+* also는 T의 확장함수이고, 블럭 함수의 입력으로 람다 리시버를 받지 않고 this로 받았음. apply와 마찬가지로 T를 반환함.
+* 블럭 함수의 입력으로 T를 받았기 때문에 it를 사용해 프로퍼티에 접근하는 것을 볼 수 있음. 그래서, 객체의 속성을 전혀 사용하지 않거나 변경하지 않고 사용하는 경우에 also를 사용함.
+* apply와 also는 자기 자신을 리턴한다는 점에서 Builder 패턴과 동일한 용도로 사용됨.
 

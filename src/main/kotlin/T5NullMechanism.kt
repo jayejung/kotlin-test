@@ -24,4 +24,13 @@ fun main(args: Array<String>) {
     // var c = a!!.length   /* 명시적인 null 상태는 체크함 */
 
     // null 처리 연산자 as, as?
+
+    // IndexOutOfBoundsException을 피하고 null을 return 받을 수 있음
+    val listStr: List<String> = listOf("111", "222", "333")
+    for (i in 0..3) {
+        println("listStr[i]: ${listStr.getOrNull(i)}")
+    }
+
+    var nullableStr: String? = null
+    var notNullStr: String = nullableStr.orEmpty()
 }

@@ -12,6 +12,11 @@ fun main(args: Array<String>) {
 
     val instance1 = InvokeOperator("Learning")
     instance1("Kotlin")
+
+    val aa: Int = 123123
+    var bb: Int = 123123
+
+    println(aa != bb)
 }
 
 /*

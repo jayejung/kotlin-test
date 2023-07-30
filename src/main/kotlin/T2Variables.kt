@@ -32,4 +32,11 @@ fun main(args: Array<String>) {
     val strInt = "77".toInt()
     val strDouble = "123.5".toDouble()
     println("$strInt, $strDouble")
+
+    val alphaNum1: String = "22334457"
+    val alphaNum2: String = "1122334456"
+
+    println("alphaNum1.compareTo(alphaNum2): ${alphaNum1.compareTo(alphaNum2)}")
+    println("alphaNum1 > alphaNum2: ${alphaNum1.toLong() > alphaNum2.toLong()}")
+
 }

@@ -1,6 +1,9 @@
 fun main(args: Array<String>) {
     varargEg()
     println(calcCombination(45, 6))     // 로또 복권의 모든 조합 가능한 번호 개수를 출력
+
+    var retVal: Int? = getNullableReturn(11)
+    println(retVal)
 }
 
 fun varargEg() {
@@ -38,4 +41,12 @@ fun calcCombination(whole: Int, selected: Int): Double {
     }
 
     return calcFactorial(whole) / (calcFactorial(whole - selected) * calcFactorial(selected))
+}
+
+fun getNullableReturn(value: Int): Int? {
+    if (value >= 10) {
+        return null
+    } else {
+        return value
+    }
 }
