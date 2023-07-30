@@ -611,3 +611,5 @@ val user: User = UserDTO.mapDomain()
 * 블럭 함수의 입력으로 T를 받았기 때문에 it를 사용해 프로퍼티에 접근하는 것을 볼 수 있음. 그래서, 객체의 속성을 전혀 사용하지 않거나 변경하지 않고 사용하는 경우에 also를 사용함.
 * apply와 also는 자기 자신을 리턴한다는 점에서 Builder 패턴과 동일한 용도로 사용됨.
 
+![scope function](https://github.com/jayejung/kotlin-test/blob/master/src/main/resources/images/scopefunction.png)
+
