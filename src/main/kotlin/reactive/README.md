@@ -374,7 +374,7 @@ Subscribed
   또는 Publisher는 Subscriber에게 onComplete 시그널을 보내 완료가 되었음을 알리거나 onError 시그널을 보내 에러가 발생했음을 알림.
   그런데, Reactor에서는 반대로 Subscriber가 Publisher에게 어떠한 신호를 보내게 할 수 있는데 이를 Backpressure라고함.
 
-* ![backpressure](https://github.com/jayejung/kotlin-test/blob/master/src/main/resources/images/backpressure.png)
+![backpressure](https://github.com/jayejung/kotlin-test/blob/master/src/main/resources/images/backpressure.png)
 
 ### 기본 Backpressure: Unbounded request
 
