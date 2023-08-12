@@ -39,4 +39,19 @@ fun main(args: Array<String>) {
     println("alphaNum1.compareTo(alphaNum2): ${alphaNum1.compareTo(alphaNum2)}")
     println("alphaNum1 > alphaNum2: ${alphaNum1.toLong() > alphaNum2.toLong()}")
 
+    val email = "jaye.jung@kakaoent.com"
+    val name = "jaye jung"
+    val age = 20
+
+    checkParams(email, name, age)
+}
+
+fun checkParams(email: String, name: String, age: Int) {
+    require(email.isNotEmpty()) {
+        "Email couldn't be empty. email is $email"
+    }
+    println("######################################")
+    println("checkParams: my name is $name with email($email). $age years old.")
+
+
 }

@@ -1,4 +1,5 @@
 plugins {
+    id("io.spring.dependency-management") version "1.1.2"
     kotlin("jvm") version "1.9.0"
     application
 }
@@ -12,6 +13,7 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+    implementation("io.projectreactor:reactor-core:3.5.8")
     testImplementation(kotlin("test"))
 }
 

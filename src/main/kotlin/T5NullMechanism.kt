@@ -33,4 +33,6 @@ fun main(args: Array<String>) {
 
     var nullableStr: String? = null
     var notNullStr: String = nullableStr.orEmpty()
+
+
 }
