@@ -389,4 +389,94 @@ Subscribed
 * 그렇다면 unbounded request를 보내지 않고 요청을 커스터마이징 하는 방법이 있음.
   가장 간단한 방법은 BaseSubscriber를 상속하는 Subscriber를 직접 구현하여 hookOnSubscribe 메서드를 오버라이드 하면 됨.
 
+```kotlin
+    Flux.range(1, 10)
+  .doOnRequest { println("request of $it") }
+  .subscribe(
+    object : BaseSubscriber<Int>() {
+      // 구독 시점에서 요청 개수를 정의한다.
+      override fun hookOnSubscribe(subscription: Subscription) {
+        request(1)
+      }
 
+      // Publisher에게 데이터를 받을 때에 대한 핸들링 로직, 데이터를 받으면 취소한다.
+      // Flux가 10개를 publishing할 수 있지만, 1개를 받고 subscription을 취소하였음.
+      override fun hookOnNext(value: Int) {
+        println("Cancelling after having received $value")
+        cancel()
+      }
+    }
+  )
+```
+
+* 위의 예시는 구독시점에 하나의 data를 요청하고, 데이터를 push 받는 시점에 hookOnNext 메서드가 호출되어 데이터를 받으면 구독을 취소하도록 구현하였음.
+* 아래는 다른 예시임. Flux를 generate 메서드를 사용하여 생성하였음. 구독하면서 랜덤으로 전달된 값이 10이면 cancel을 호출.
+
+```kotlin
+    val randomInfiniteFlux = Flux.generate<Int> { sink ->
+  sink.next(Random.nextInt(1, 11))
+}.doOnRequest { println("request of $it") }
+
+randomInfiniteFlux.subscribe(
+  object : BaseSubscriber<Int>() {
+    override fun hookOnSubscribe(subscription: Subscription) {
+      request(1)
+    }
+
+    override fun hookOnNext(value: Int) {
+      println("data is $value, if data is 10 then cancel")
+      if (value == 10) {
+        println("cancel!")
+        cancel()
+      } else {
+        println("request")
+        request(1)
+      }
+    }
+  }
+)
+```
+
+* Buffer를 사용하여 Backpressure를 커스터마이징 할 수 있음.
+* buffer(N)은 upstream에서 방출된 데이터가 N개 모이면 downstream으로 방출하게하는 operator임. 만약, upstream에서 N개의 데이터를 방출하지 못하고 complete된다면 방출한
+  망큼의 데이터를 downstream으로 보내게 됨.
+  buffer(N)이 upstream에서 받은 데이터를 buffer단위로 방출하기 때문에 리턴타입은 Mono<List<T>> 또는 Flux<List<T>> 임.
+
+```kotlin
+    val upstream = Flux.range(1, 40)
+
+upstream.buffer(10)
+  .subscribe(
+    object : BaseSubscriber<List<Int>>() {
+      override fun hookOnSubscribe(subscription: Subscription) {
+        println("requset 2")
+        request(2)
+      }
+
+      override fun hookOnNext(value: List<Int>) {
+        println("value: $value")
+        request(2)
+      }
+
+      override fun hookOnComplete() {
+        println("Completed!")
+      }
+    }
+  )
+```
+
+* Subscriber가 구독하고 publisher가 데이터를 push하는 과정을 순차적으로 보면 아래와 같음.
+
+1. subscriber가 request(2)를 publisher에게 요청하면 buffer(10)에서 upstreamer에게 ruquest(2)를 요청
+2. 그 후 upstreamer에서는 요청을 받고 데이터를 하나 하나 push를 함.
+3. buffer(10)은 upstreamer에게 받은 데이터르 subscriber에게 바로 보내지 않고 데이터를 10개까지 모을 때 까지 기다림.
+4. 데이터가 10개 이상되면 subscriber(downstream)으로 전달.
+5. publisher가 40개의 데이터를 모두 전달하였다면 onComplete신호를 보냄.
+6. onComplete 신호는 buffer(10)을 통화하여 subscriber에게 전달되고 구독이 완료됨.
+
+* Prefetch를 사용하여 Backpressure를 커스터마이징할 수 있음.
+* Reactor에서는 prefetch 파라미터를 이용하여 downstream에서 upstream에게 request를 보내 downstream이 요구한 데이터를 upstream이 미리 방출하도록 시킬 수 있음.
+  prefetch는 Flux.publishOn(scheduler, prefetch) 메서드를 이용하면 설정할 수 있음.
+  publishOn에서 설정하지 않는다면 기본적으로, MathMax(16, 256)으로 설정될 것음.
+* prefetch는 publisher에서 요청받을 데이터를 선 반영하는 전략이며, 이는 Replenishing Optimization을 구현해야함.
+  operator가 prefetch의 75% 정도를 수행한다면, prefetch의 75% 정도를 다시 upstream에게 미리 요청하는 전략임.
